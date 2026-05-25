@@ -102,4 +102,4 @@ Backend can be deployed using:
 ## 👨‍💻 Author
 
 - Name: Rehanashaik  
-- GitHub: [https://github.com/your-username](https://github.com/Rehanashaik06/paytm-backend)
+- GitHub: (https://github.com/Rehanashaik06/paytm-backend)
