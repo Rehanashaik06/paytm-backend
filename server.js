@@ -12,6 +12,8 @@ const Transaction = require("./models/Transaction");
 const MovieBooking = require("./models/MovieBooking");
 const TrainBooking = require("./models/TrainBooking");
 
+const authRoutes = require("./routes/authRoutes");
+
 dotenv.config();
 
 connectDB();
@@ -22,6 +24,10 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+
+// AUTH ROUTES
+app.use("/api/auth", authRoutes);
 
 
 
