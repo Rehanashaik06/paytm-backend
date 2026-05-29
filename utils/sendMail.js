@@ -4,9 +4,6 @@ const sendOTP = async (email, otp) => {
 
   try {
 
-    console.log("EMAIL USER:", process.env.EMAIL_USER);
-    console.log("EMAIL PASS:", process.env.EMAIL_PASS);
-
     const transporter = nodemailer.createTransport({
       service: "gmail",
 
@@ -16,16 +13,16 @@ const sendOTP = async (email, otp) => {
       },
     });
 
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Paytm Clone OTP",
-      html: `
-        <h2>Your OTP is ${otp}</h2>
-      `,
+      html: `<h2>Your OTP is ${otp}</h2>`,
     });
 
     console.log("OTP Sent Successfully");
+
+    return info;
 
   } catch (error) {
 

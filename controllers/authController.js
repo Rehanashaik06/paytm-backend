@@ -7,9 +7,18 @@ const jwt = require("jsonwebtoken");
 
 // REGISTER
 exports.register = async (req, res) => {
+
   try {
 
     const { email, password, confirmPassword } = req.body;
+
+    // CHECK EMPTY FIELDS
+    if (!email || !password || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
 
     // PASSWORD MATCH CHECK
     if (password !== confirmPassword) {
@@ -42,7 +51,7 @@ exports.register = async (req, res) => {
     // SEND OTP MAIL
     await sendOTP(email, otp);
 
-    // SAVE USER
+    // CREATE USER
     const user = await User.create({
       email,
       password: hashedPassword,
@@ -58,6 +67,7 @@ exports.register = async (req, res) => {
 
   } catch (error) {
 
+    console.log("REGISTER ERROR:");
     console.log(error);
 
     res.status(500).json({
@@ -70,10 +80,12 @@ exports.register = async (req, res) => {
 
 // VERIFY REGISTER OTP
 exports.verifyOTP = async (req, res) => {
+
   try {
 
     const { email, otp } = req.body;
 
+    // CHECK USER
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -91,7 +103,7 @@ exports.verifyOTP = async (req, res) => {
       });
     }
 
-    // OTP EXPIRY
+    // OTP EXPIRED
     if (user.otpExpiry < Date.now()) {
       return res.status(400).json({
         success: false,
@@ -112,6 +124,7 @@ exports.verifyOTP = async (req, res) => {
 
   } catch (error) {
 
+    console.log("VERIFY OTP ERROR:");
     console.log(error);
 
     res.status(500).json({
@@ -124,9 +137,18 @@ exports.verifyOTP = async (req, res) => {
 
 // LOGIN
 exports.login = async (req, res) => {
+
   try {
 
     const { email, password } = req.body;
+
+    // CHECK EMPTY FIELDS
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and Password are required",
+      });
+    }
 
     // CHECK USER
     const user = await User.findOne({ email });
@@ -158,23 +180,23 @@ exports.login = async (req, res) => {
       specialChars: false,
     });
 
+    // SAVE OTP
     user.otp = otp;
-
-    user.otpExpiry =
-      Date.now() + 5 * 60 * 1000;
+    user.otpExpiry = Date.now() + 5 * 60 * 1000;
 
     await user.save();
 
-    // SEND MAIL
+    // SEND LOGIN OTP
     await sendOTP(email, otp);
 
     res.status(200).json({
       success: true,
-      message: "Login OTP Sent",
+      message: "Login OTP Sent Successfully",
     });
 
   } catch (error) {
 
+    console.log("LOGIN ERROR:");
     console.log(error);
 
     res.status(500).json({
@@ -187,10 +209,12 @@ exports.login = async (req, res) => {
 
 // VERIFY LOGIN OTP
 exports.verifyLoginOTP = async (req, res) => {
+
   try {
 
     const { email, otp } = req.body;
 
+    // CHECK USER
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -208,7 +232,7 @@ exports.verifyLoginOTP = async (req, res) => {
       });
     }
 
-    // OTP EXPIRY
+    // OTP EXPIRED
     if (user.otpExpiry < Date.now()) {
       return res.status(400).json({
         success: false,
@@ -216,7 +240,7 @@ exports.verifyLoginOTP = async (req, res) => {
       });
     }
 
-    // CREATE JWT TOKEN
+    // JWT TOKEN
     const token = jwt.sign(
       {
         id: user._id,
@@ -241,6 +265,7 @@ exports.verifyLoginOTP = async (req, res) => {
 
   } catch (error) {
 
+    console.log("VERIFY LOGIN OTP ERROR:");
     console.log(error);
 
     res.status(500).json({
